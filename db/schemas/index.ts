@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   boolean,
   timestamp,
@@ -84,3 +85,45 @@ export const authenticators = pgTable(
     }),
   })
 );
+
+export const links = pgTable("links", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  originalUrl: text("originalUrl").notNull(),
+  shortUrl: text("shortUrl").notNull().unique(),
+  userId: text("userId").references(() => users.id, { onDelete: "cascade" }),
+  guestId: text("guestId"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const analytics = pgTable("analytics", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  linkId: text("linkId").references(() => links.id, { onDelete: "cascade" }),
+  clickCount: integer("clickCount").default(0),
+  lastClickedAt: timestamp("lastClickedAt"),
+});
+
+export const userRelations = relations(users, ({ many }) => ({
+  links: many(links),
+}));
+
+export const linkRelations = relations(links, ({ one }) => ({
+  user: one(users, {
+    fields: [links.userId],
+    references: [users.id],
+  }),
+  analytics: one(analytics, {
+    fields: [links.id],
+    references: [analytics.linkId],
+  }),
+}));
+
+export const analyticsRelations = relations(analytics, ({ one }) => ({
+  link: one(links, {
+    fields: [analytics.linkId],
+    references: [links.id],
+  }),
+}));
