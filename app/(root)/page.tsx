@@ -1,11 +1,10 @@
-import { db } from "@/db";
-import { usersTable } from "@/db/schemas";
+import { auth } from "@/auth";
 
+ 
 export default async function Home() {
   
-  const users = await db.select().from(usersTable)
-  const list = await db.query.usersTable.findMany()
-  console.log({users, list});
+  const session = await auth()
+  console.log(session);
   
   return (
    <main>
