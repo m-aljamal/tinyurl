@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 type Link = {
@@ -20,7 +21,7 @@ const LinkContext = createContext<LinkContextType | undefined>(undefined);
 
 export function LinkProvider({ children }: { children: React.ReactNode }) {
   const [links, setLinks] = useState<Link[]>([]);
-
+  const { data: session, status } = useSession();
   const addLink = (link: Link) => {
     setLinks((prevLinks) => [link, ...prevLinks]);
   };
@@ -33,6 +34,8 @@ export function LinkProvider({ children }: { children: React.ReactNode }) {
     if (res.ok) {
       const data = await res.json();
       setLinks(data);
+    } else {
+      setLinks([]);
     }
   };
 
