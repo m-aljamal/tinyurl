@@ -22,6 +22,8 @@ const getLinks = cache(async (guestId: string | null) => {
         )
       );
   } catch (error) {
+    console.log(error);
+
     throw new Error("Error fetching links");
   }
 });
@@ -35,6 +37,8 @@ export async function GET(req: Request) {
 
     return NextResponse.json(userLinks);
   } catch (error) {
+    console.log(error);
+
     return NextResponse.json(
       {
         error: "Error fetching links",
