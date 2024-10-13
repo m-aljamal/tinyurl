@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth, signIn, signOut } from "@/auth";
+import { auth, signIn } from "@/auth";
 import SingOut from "./sing-out";
 
 export default async function Header() {
@@ -18,14 +18,6 @@ export default async function Header() {
                 Dashboard
               </Link>
               <SingOut />
-              {/* <form
-                action={async () => {
-                  "use server";
-                  await signOut();
-                }}
-              >
-                <button type="submit">Sign Out</button>
-              </form> */}
             </>
           ) : (
             <>

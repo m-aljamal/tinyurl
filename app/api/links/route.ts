@@ -35,7 +35,13 @@ export async function GET(req: Request) {
 
     return NextResponse.json(userLinks);
   } catch (error) {
-    console.error(error);
-    return NextResponse.error();
+    return NextResponse.json(
+      {
+        error: "Error fetching links",
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }

@@ -41,7 +41,7 @@ export function LinkProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     fetchLinks();
-  }, []);
+  }, [session]);
 
   return (
     <LinkContext.Provider value={{ links, addLink, fetchLinks }}>
