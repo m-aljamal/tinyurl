@@ -15,26 +15,31 @@ type LinkContextType = {
   links: Link[];
   addLink: (link: Link) => void;
   fetchLinks: () => Promise<void>;
+  loading: boolean;
 };
 
 const LinkContext = createContext<LinkContextType | undefined>(undefined);
 
 export function LinkProvider({ children }: { children: React.ReactNode }) {
   const [links, setLinks] = useState<Link[]>([]);
+  const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
   const addLink = (link: Link) => {
     setLinks((prevLinks) => [link, ...prevLinks]);
   };
 
   const fetchLinks = async () => {
+    setLoading(true);
     const guestId = localStorage.getItem("guestId");
     const res = await fetch(
       `/api/links${!session && guestId ? `?guestId=${guestId}` : ""}`
     );
     if (res.ok) {
+      setLoading(false);
       const data = await res.json();
       setLinks(data);
     } else {
+      setLoading(false);
       setLinks([]);
     }
   };
@@ -44,7 +49,7 @@ export function LinkProvider({ children }: { children: React.ReactNode }) {
   }, [session]);
 
   return (
-    <LinkContext.Provider value={{ links, addLink, fetchLinks }}>
+    <LinkContext.Provider value={{ links, addLink, fetchLinks, loading }}>
       {children}
     </LinkContext.Provider>
   );

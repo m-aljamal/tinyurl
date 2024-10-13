@@ -8,8 +8,7 @@ export default async function Home() {
 
   return (
     <LinkProvider>
-      <main>
-        <h1>Welcome</h1>
+      <main className="mt-4 max-w-4xl mx-auto flex flex-col  ">
         <LinkForm session={session} />
         <LinkList />
       </main>
