@@ -1,55 +1,31 @@
 "use client";
-import React, { useEffect, useState } from "react";
 
-type Link = {
-  id: string;
-  userId: string | null;
-  originalUrl: string;
-  shortCode: string;
-  guestId: string | null;
-  createdAt: Date;
-};
+import React from "react";
+import { useLinks } from "./link-context";
 
 export default function LinkList() {
-  const [userLinks, setUserLinks] = useState<Link[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchLinks = async () => {
-      setLoading(true);
-      const guestId = localStorage.getItem("guestId");
-
-      const res = await fetch(
-        `/api/links${guestId ? `?guestId=${guestId}` : ""}`
-      );
-
-      if (res.ok) {
-        setLoading(false);
-        const data = await res.json();
-        setUserLinks(data);
-      }
-    };
-    fetchLinks();
-  }, []);
+  const { links } = useLinks();
 
   return (
     <div className="mt-8">
       <h2>Links History</h2>
-
-      {loading ? (
-        <p>Loading...</p>
+      {links.length === 0 ? (
+        <p>No links yet.</p>
       ) : (
-        <ul className="flex flex-col gap-8 ">
-          {userLinks?.map((link) => (
-            <li key={link.id} className="bg-gray-200 ">
+        <ul className="flex flex-col gap-8">
+          {links?.map((link, i) => (
+            <li key={link.id + i} className="bg-gray-200 p-4 rounded">
               <div>
-                <p>Original:</p>
-                <a href={link.originalUrl}>{link.originalUrl}</a>
+                <p className="font-semibold">Original:</p>
+                <a href={link.originalUrl} className="text-blue-500 break-all">
+                  {link.originalUrl}
+                </a>
               </div>
-              <div>
-                <p>Short:</p>
+              <div className="mt-2">
+                <p className="font-semibold">Short:</p>
                 <a
                   href={`${process.env.NEXT_PUBLIC_BASE_URL}/${link.shortCode}`}
+                  className="text-blue-500"
                 >{`${process.env.NEXT_PUBLIC_BASE_URL}/${link.shortCode}`}</a>
               </div>
             </li>

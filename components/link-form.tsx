@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Session } from "next-auth";
 import { useState } from "react";
 import Link from "next/link";
+import { useLinks } from "./link-context";
 
 const formSchema = z.object({
   url: z.string().url(),
@@ -27,8 +28,7 @@ interface LinkFormProps {
 }
 
 function LinkForm({ session }: LinkFormProps) {
-  // const {data:session} = useSession()
-
+  const { addLink } = useLinks();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -53,9 +53,16 @@ function LinkForm({ session }: LinkFormProps) {
       }),
     });
     if (res.ok) {
-      console.log("Success");
       const data = await res.json();
       setShortCode(data.shortCode);
+      addLink({
+        id: data.id,
+        userId: session?.user?.id || null,
+        originalUrl: values.url,
+        shortCode: data.shortCode,
+        guestId: session ? null : guestId,
+      });
+      form.reset();
     }
   }
 
@@ -87,10 +94,7 @@ function LinkForm({ session }: LinkFormProps) {
           <p>
             original Url <span>{form.getValues("url")}</span>
           </p>
-          <Link
-            href={`/${shortCode}`}
-            className="text-blue-500 underline"
-          >
+          <Link href={`/${shortCode}`} className="text-blue-500 underline">
             {`${process.env.NEXT_PUBLIC_BASE_URL}/${shortCode}`}
           </Link>
         </div>
