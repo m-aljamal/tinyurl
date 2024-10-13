@@ -6,6 +6,7 @@ import {
   text,
   primaryKey,
   integer,
+  json,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
@@ -96,18 +97,25 @@ export const links = pgTable("links", {
   guestId: text("guestId"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
-// todo remove linkId and add userId
 export const analytics = pgTable("analytics", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   linkId: text("linkId").references(() => links.id, { onDelete: "cascade" }),
+  userId: text("userId").references(() => users.id, { onDelete: "cascade" }),
   clickCount: integer("clickCount").default(0),
   lastClickedAt: timestamp("lastClickedAt"),
+  geoData: json("geoData").$type<{
+    city: string;
+    country: string;
+    latitude: number;
+    longitude: number;
+  }>(),
 });
 
 export const userRelations = relations(users, ({ many }) => ({
   links: many(links),
+  analytics: many(analytics),
 }));
 
 export const linkRelations = relations(links, ({ one }) => ({
@@ -125,5 +133,9 @@ export const analyticsRelations = relations(analytics, ({ one }) => ({
   link: one(links, {
     fields: [analytics.linkId],
     references: [links.id],
+  }),
+  user: one(users, {
+    fields: [analytics.userId],
+    references: [users.id],
   }),
 }));
