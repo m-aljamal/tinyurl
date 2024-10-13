@@ -21,7 +21,7 @@ const LinkContext = createContext<LinkContextType | undefined>(undefined);
 
 export function LinkProvider({ children }: { children: React.ReactNode }) {
   const [links, setLinks] = useState<Link[]>([]);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const addLink = (link: Link) => {
     setLinks((prevLinks) => [link, ...prevLinks]);
   };
@@ -29,7 +29,7 @@ export function LinkProvider({ children }: { children: React.ReactNode }) {
   const fetchLinks = async () => {
     const guestId = localStorage.getItem("guestId");
     const res = await fetch(
-      `/api/links${guestId ? `?guestId=${guestId}` : ""}`
+      `/api/links${!session && guestId ? `?guestId=${guestId}` : ""}`
     );
     if (res.ok) {
       const data = await res.json();
