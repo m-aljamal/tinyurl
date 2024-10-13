@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Session } from "next-auth";
+import { useState } from "react";
+import Link from "next/link";
 
 const formSchema = z.object({
   url: z.string().url(),
@@ -33,6 +35,7 @@ function LinkForm({ session }: LinkFormProps) {
       url: "",
     },
   });
+  const [shortCode, setShortCode] = useState("");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const guestId = localStorage.getItem("guestId") || crypto.randomUUID();
@@ -51,31 +54,48 @@ function LinkForm({ session }: LinkFormProps) {
     });
     if (res.ok) {
       console.log("Success");
+      const data = await res.json();
+      setShortCode(data.shortCode);
     }
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="url"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Url</FormLabel>
-              <FormControl>
-                <Input placeholder="https://example.com" {...field} />
-              </FormControl>
-              <FormDescription>
-                Enter the URL you want to shorten.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
+    <div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <FormField
+            control={form.control}
+            name="url"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Url</FormLabel>
+                <FormControl>
+                  <Input placeholder="https://example.com" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Enter the URL you want to shorten.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit">Submit</Button>
+        </form>
+      </Form>
+      {shortCode && (
+        <div>
+          <p>
+            original Url <span>{form.getValues("url")}</span>
+          </p>
+          <Link
+            href={`/${shortCode}`}
+            className="text-blue-500 underline"
+          >
+            {`${process.env.NEXT_PUBLIC_BASE_URL}/${shortCode}`}
+          </Link>
+        </div>
+      )}
+    </div>
   );
 }
 

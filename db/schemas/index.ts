@@ -91,12 +91,12 @@ export const links = pgTable("links", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   originalUrl: text("originalUrl").notNull(),
-  shortUrl: text("shortUrl").notNull().unique(),
+  shortCode: text("shortCode").notNull().unique(),
   userId: text("userId").references(() => users.id, { onDelete: "cascade" }),
   guestId: text("guestId"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
-
+// todo remove linkId and add userId
 export const analytics = pgTable("analytics", {
   id: text("id")
     .primaryKey()

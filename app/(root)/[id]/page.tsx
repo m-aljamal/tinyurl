@@ -1,15 +1,24 @@
+import { db } from "@/db";
+import { links } from "@/db/schemas";
 import { redirect } from "next/navigation";
 import React from "react";
-function page({ params }: { params: { id: string } }) {
-  const url =
-    "https://river-impala-a85.notion.site/Challenge-Link-Shortener-with-Analytics-and-Guest-User-Tracking-1188713afe5f803d88dae2f365651a1b";
-  if (params.id === "short") {
-    redirect(url);
+import { eq } from "drizzle-orm";
+
+async function page({ params }: { params: { id: string } }) {
+  const [url] = await db
+    .select({
+      originalUrl: links.originalUrl,
+    })
+    .from(links)
+    .where(eq(links.shortCode, params.id));
+
+  if (url) {
+    redirect(url.originalUrl);
   }
 
   return (
     <div>
-      <p>Not found with {params.id} </p>
+      <p>Not found with {params.id}</p>
     </div>
   );
 }
