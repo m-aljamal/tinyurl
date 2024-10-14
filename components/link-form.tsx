@@ -20,7 +20,8 @@ import Link from "next/link";
 import { useLinks } from "./link-context";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { Copy, Check } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+
 const formSchema = z.object({
   url: z.string().url(),
 });
@@ -40,8 +41,8 @@ export default function LinkForm({ session }: LinkFormProps) {
   const [shortCode, setShortCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const { toast } = useToast();
+  const { copiedStates, copyToClipboard } = useCopyToClipboard();
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     const guestId = localStorage.getItem("guestId") || crypto.randomUUID();
@@ -77,24 +78,9 @@ export default function LinkForm({ session }: LinkFormProps) {
     }
   }
 
-  const copyToClipboard = async () => {
+  const handleCopyShortUrl = () => {
     const shortUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${shortCode}`;
-    try {
-      await navigator.clipboard.writeText(shortUrl);
-      setCopied(true);
-      toast({
-        title: "Copied to clipboard",
-        description: "The shortened URL has been copied to your clipboard.",
-      });
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy: ", err);
-      toast({
-        title: "Copy failed",
-        description: "Failed to copy the URL. Please try again.",
-        variant: "destructive",
-      });
-    }
+    copyToClipboard(shortUrl, shortCode, 'short');
   };
 
   return (
@@ -141,10 +127,10 @@ export default function LinkForm({ session }: LinkFormProps) {
           <Button
             variant="outline"
             size="icon"
-            onClick={copyToClipboard}
+            onClick={handleCopyShortUrl}
             className="ml-2"
           >
-            {copied ? (
+            {copiedStates[`${shortCode}-short`] ? (
               <Check className="h-4 w-4" />
             ) : (
               <Copy className="h-4 w-4" />
